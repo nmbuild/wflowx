@@ -1,0 +1,11 @@
+variables:
+  NODE_ENV: test
+  CACHE_KEY: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+stages:
+- build
+build:
+  stage: build
+  image: ubuntu:latest
+  script:
+  - '# TODO: handle action actions/cache@v3'
+  - '# TODO: handle action actions/setup-node@v3'

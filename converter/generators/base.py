@@ -4,5 +4,5 @@ from ci_converter.core.ir import Pipeline
 class Generator(ABC):
     @abstractmethod
     def generate(self, pipeline: Pipeline) -> str:
-        \"\"\"Return generated text (YAML or DSL).\"\"\"
+        """Emit a string representing the target config."""
         pass

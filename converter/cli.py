@@ -1,18 +1,33 @@
 import argparse
 from ci_converter.core.registry import get_parser, get_generator
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--from',   dest='src', required=True,
-                    choices=['github','jenkins','azure'])
-parser.add_argument('--to',     dest='dst', required=True,
-                    choices=['gitlab','jenkinsfile','azure'])
-parser.add_argument('-i','--in',  dest='infile',  required=True)
-parser.add_argument('-o','--out', dest='outfile', required=True)
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(
+        description="Multi‐tool CI/CD converter: parse from one platform and emit to another."
+    )
+    parser.add_argument(
+        '--from', dest='src', required=True,
+        choices=list(get_parser.keys()),
+        help='Source platform key (e.g. github)'
+    )
+    parser.add_argument(
+        '--to', dest='dst', required=True,
+        choices=list(get_generator.keys()),
+        help='Target platform key (e.g. gitlab)'
+    )
+    parser.add_argument('-i','--in',  dest='infile',  required=True,
+                        help='Input CI/CD config file')
+    parser.add_argument('-o','--out', dest='outfile', required=True,
+                        help='Output file to write')
 
-pipeline = get_parser(args.src).parse(args.infile)
-text     = get_generator(args.dst).generate(pipeline)
+    args = parser.parse_args()
 
-with open(args.outfile,'w') as f:
-    f.write(text)
-print(f"Wrote {args.outfile}")
+    pipeline = get_parser(args.src).parse(args.infile)
+    output  = get_generator(args.dst).generate(pipeline)
+
+    with open(args.outfile, 'w') as f:
+        f.write(output)
+    print(f"Wrote converted CI file to {args.outfile}")
+
+if __name__ == '__main__':
+    main()
