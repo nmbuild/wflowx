@@ -1,0 +1,50 @@
+name: CI Pipeline
+
+# Triggers
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *'    # daily at 02:00 UTC
+  workflow_dispatch:       # manual trigger
+
+# Global environment variables
+env:
+  NODE_ENV: test
+  CACHE_KEY: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+jobs:
+  # Build & test across multiple Node versions
+  build:
+    name: Build & Test (${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [14, 16, 18]
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
